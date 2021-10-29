@@ -5,6 +5,7 @@ import com.comphenix.protocol.wrappers.WrappedChatComponent;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Bukkit;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
@@ -34,10 +35,14 @@ public final class AdventureComponentAdapter {
                 try {
                     var textComponent = (TextComponent) field.get(container.getHandle());
                     if (textComponent != null) {
-                        return textComponent.content();
+                        return (String) textComponent.getClass().getMethod("content").invoke(textComponent);
                     }
                 } catch (IllegalAccessException e) {
                     Bukkit.getLogger().log(Level.WARNING, "[MessageBlockerAPI] Could not read field value of adventure$message");
+                } catch (NoSuchMethodException e) {
+
+                } catch (InvocationTargetException e) {
+
                 }
                 return getChatComponentText(container).orElseGet(() -> getSafeString(container).orElse(""));
             };
