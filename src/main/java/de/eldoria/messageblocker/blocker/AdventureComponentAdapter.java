@@ -2,6 +2,7 @@ package de.eldoria.messageblocker.blocker;
 
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.wrappers.WrappedChatComponent;
+import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Bukkit;
 
 import java.lang.reflect.InvocationTargetException;
@@ -37,11 +38,11 @@ public final class AdventureComponentAdapter {
                         return (String) textComponent.getClass().getMethod("content").invoke(textComponent);
                     }
                 } catch (IllegalAccessException e) {
-                    Bukkit.getLogger().log(Level.WARNING, "[MessageBlockerAPI] Could not read field value of adventure$message");
+                    Bukkit.getLogger().log(Level.WARNING, "[MessageBlockerAPI] Could not read field value of adventure$message", e);
                 } catch (NoSuchMethodException e) {
-
+                    Bukkit.getLogger().log(Level.WARNING, "[MessageBlockerAPI] Could not read field value of adventure$message", e);
                 } catch (InvocationTargetException e) {
-
+                    Bukkit.getLogger().log(Level.WARNING, "[MessageBlockerAPI] Could not read value value of adventure$message", e);
                 }
                 return getChatComponentText(container).orElseGet(() -> getSafeString(container).orElse(""));
             };
