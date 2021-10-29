@@ -27,7 +27,7 @@ public final class MessageBlockerAPI {
         if (!descr.getDepend().contains("ProtocolLib") || !descr.getSoftDepend().contains("ProtocolLib")) {
             plugin.getLogger().warning("The MessageBlocker API is used, but ProtocolLib is not listed as depend or soft depend.");
         }
-        return blocker.computeIfAbsent(plugin.getClass(), k -> init(plugin));
+        return blocker.computeIfAbsent(plugin.getClass(), k -> init(init(plugin)));
     }
 
     /**
@@ -47,7 +47,7 @@ public final class MessageBlockerAPI {
      * @return message blocker
      */
     public static IMessageBlockerService register(IMessageBlockerService messageBlockerService) {
-        return blocker.computeIfAbsent(messageBlockerService.plugin().getClass(), k -> messageBlockerService);
+        return blocker.computeIfAbsent(messageBlockerService.plugin().getClass(), key -> init(messageBlockerService));
     }
 
     private static IMessageBlockerService init(Plugin plugin) {
@@ -56,5 +56,9 @@ public final class MessageBlockerAPI {
             return IMessageBlockerService.dummy(plugin);
         }
         return new MessageBlockerService(plugin, Executors.newSingleThreadExecutor(), new HashSet<>());
+    }
+    private static IMessageBlockerService init(IMessageBlockerService service) {
+        service.init();
+        return service;
     }
 }

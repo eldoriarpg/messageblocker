@@ -10,7 +10,6 @@ import com.comphenix.protocol.events.PacketEvent;
 import de.eldoria.messageblocker.util.RollingCache;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
@@ -26,7 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
 
-public class MessageBlockerService extends PacketAdapter implements Listener, IMessageBlockerService {
+public class MessageBlockerService extends PacketAdapter implements IMessageBlockerService {
     private final Set<UUID> blocked = new HashSet<>();
     private final Map<UUID, RollingCache<PacketContainer>> messageCache = new ConcurrentHashMap<>();
     private final Map<UUID, String> announcements = new HashMap<>();
@@ -37,8 +36,14 @@ public class MessageBlockerService extends PacketAdapter implements Listener, IM
     public MessageBlockerService(Plugin plugin, ExecutorService executorService, Set<String> whitelisted) {
         super(plugin, ListenerPriority.HIGHEST, PacketType.Play.Server.CHAT);
         this.executorService = executorService;
-        this.manager = ProtocolLibrary.getProtocolManager();
         this.whitelisted = whitelisted;
+        this.manager = ProtocolLibrary.getProtocolManager();
+    }
+
+    @Override
+    public void init() {
+        manager.addPacketListener(this);
+        plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
     @Override

@@ -1,12 +1,13 @@
 package de.eldoria.messageblocker.blocker;
 
 import org.bukkit.entity.Player;
+import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
-public interface IMessageBlockerService {
+public interface IMessageBlockerService extends Listener {
     /**
      * Creates a dummy {@link IMessageBlockerService} which will not block any messages, but will behave like an active message blocker
      *
@@ -24,6 +25,10 @@ public interface IMessageBlockerService {
                 return plugin;
             }
         };
+    }
+
+    default void init(){
+
     }
 
     /**

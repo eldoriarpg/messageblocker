@@ -20,7 +20,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly("de.eldoria", "messageblocker", "version")
+    implementation("de.eldoria", "messageblocker", "version")
 }
 ```
 
