@@ -2,7 +2,6 @@ package de.eldoria.messageblocker.blocker;
 
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.wrappers.WrappedChatComponent;
-import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Bukkit;
 
 import java.lang.reflect.InvocationTargetException;
@@ -33,7 +32,7 @@ public final class AdventureComponentAdapter {
             var field = packet.getHandle().getClass().getField("adventure$message");
             adapter = container -> {
                 try {
-                    var textComponent = (TextComponent) field.get(container.getHandle());
+                    var textComponent = field.get(container.getHandle());
                     if (textComponent != null) {
                         return (String) textComponent.getClass().getMethod("content").invoke(textComponent);
                     }
