@@ -5,6 +5,7 @@ import com.comphenix.protocol.wrappers.WrappedChatComponent;
 import org.bukkit.Bukkit;
 
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
@@ -39,7 +40,9 @@ public final class AdventureComponentAdapter {
                                 .filter(clazz -> clazz.getSimpleName().startsWith("TextComponent"))
                                 .findFirst();
                         if (textInterface.isPresent()) {
-                            return (String) textInterface.get().getClass().getMethod("content").invoke(textImpl);
+                            var method = textImpl.getClass().getMethod("content");
+                            method.setAccessible(true);
+                            return (String) method.invoke(textImpl);
                         }
                         return "";
                     }
