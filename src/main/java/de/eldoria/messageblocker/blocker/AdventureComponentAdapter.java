@@ -6,6 +6,7 @@ import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Bukkit;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
@@ -33,9 +34,12 @@ public final class AdventureComponentAdapter {
             var field = packet.getHandle().getClass().getField("adventure$message");
             adapter = container -> {
                 try {
-                    var textComponent = field.get(container.getHandle());
-                    if (textComponent != null) {
-                        return (String) textComponent.getClass().getMethod("content").invoke(textComponent);
+                    var textImpl = field.get(container.getHandle());
+                    if (textImpl != null) {
+                        var textInterface = Arrays.stream(textImpl.getClass().getInterfaces())
+                                .filter(c -> c.getSimpleName().startsWith("TextComponent"))
+                                .findFirst();
+                        return (String) textInterface.getClass().getMethod("content").invoke(textImpl);
                     }
                 } catch (IllegalAccessException e) {
                     Bukkit.getLogger().log(Level.WARNING, "[MessageBlockerAPI] Could not read field value of adventure$message", e);
