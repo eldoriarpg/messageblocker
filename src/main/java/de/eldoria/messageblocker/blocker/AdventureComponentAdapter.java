@@ -5,6 +5,8 @@ import com.comphenix.protocol.wrappers.WrappedChatComponent;
 import org.bukkit.Bukkit;
 
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
@@ -32,16 +34,24 @@ public final class AdventureComponentAdapter {
             var field = packet.getHandle().getClass().getField("adventure$message");
             adapter = container -> {
                 try {
-                    var textComponent = field.get(container.getHandle());
-                    if (textComponent != null) {
-                        return (String) textComponent.getClass().getMethod("content").invoke(textComponent);
+                    var textImpl = field.get(container.getHandle());
+                    if (textImpl != null) {
+                        var textInterface = Arrays.stream(textImpl.getClass().getInterfaces())
+                                .filter(clazz -> clazz.getSimpleName().startsWith("TextComponent"))
+                                .findFirst();
+                        if (textInterface.isPresent()) {
+                            var method = textImpl.getClass().getMethod("content");
+                            method.setAccessible(true);
+                            return (String) method.invoke(textImpl);
+                        }
+                        return "";
                     }
                 } catch (IllegalAccessException e) {
-                    Bukkit.getLogger().log(Level.WARNING, "[MessageBlockerAPI] Could not read field value of adventure$message");
+                    Bukkit.getLogger().log(Level.WARNING, "[MessageBlockerAPI] Could not read field value of adventure$message", e);
                 } catch (NoSuchMethodException e) {
-
+                    Bukkit.getLogger().log(Level.WARNING, "[MessageBlockerAPI] Could not read field value of adventure$message", e);
                 } catch (InvocationTargetException e) {
-
+                    Bukkit.getLogger().log(Level.WARNING, "[MessageBlockerAPI] Could not read value value of adventure$message", e);
                 }
                 return getChatComponentText(container).orElseGet(() -> getSafeString(container).orElse(""));
             };
