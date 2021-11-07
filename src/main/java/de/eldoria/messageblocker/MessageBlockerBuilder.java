@@ -1,7 +1,7 @@
 package de.eldoria.messageblocker;
 
-import de.eldoria.messageblocker.blocker.IMessageBlockerService;
-import de.eldoria.messageblocker.blocker.MessageBlockerService;
+import de.eldoria.messageblocker.blocker.MessageBlocker;
+import de.eldoria.messageblocker.blocker.MessageBlockerImpl;
 import org.bukkit.plugin.Plugin;
 
 import java.util.Arrays;
@@ -31,10 +31,10 @@ public class MessageBlockerBuilder {
         return this;
     }
 
-    public IMessageBlockerService build() {
+    public MessageBlocker build() {
         if (plugin.getServer().getPluginManager().isPluginEnabled("ProtocolLib")) {
-            return MessageBlockerAPI.register(new MessageBlockerService(plugin, executor, whitelisted));
+            return MessageBlockerAPI.register(new MessageBlockerImpl(plugin, executor, whitelisted));
         }
-        return IMessageBlockerService.dummy(plugin);
+        return MessageBlocker.dummy(plugin);
     }
 }

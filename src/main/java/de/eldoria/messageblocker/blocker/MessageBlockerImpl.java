@@ -25,7 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
 
-public class MessageBlockerService extends PacketAdapter implements IMessageBlockerService {
+public class MessageBlockerImpl extends PacketAdapter implements MessageBlocker {
     private final Set<UUID> blocked = new HashSet<>();
     private final Map<UUID, RollingCache<PacketContainer>> messageCache = new ConcurrentHashMap<>();
     private final Map<UUID, String> announcements = new HashMap<>();
@@ -33,7 +33,7 @@ public class MessageBlockerService extends PacketAdapter implements IMessageBloc
     private final ProtocolManager manager;
     private final Set<String> whitelisted;
 
-    public MessageBlockerService(Plugin plugin, ExecutorService executorService, Set<String> whitelisted) {
+    public MessageBlockerImpl(Plugin plugin, ExecutorService executorService, Set<String> whitelisted) {
         super(plugin, ListenerPriority.HIGHEST, PacketType.Play.Server.CHAT);
         this.executorService = executorService;
         this.whitelisted = whitelisted;

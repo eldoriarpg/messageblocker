@@ -7,14 +7,14 @@ import org.bukkit.plugin.Plugin;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
-public interface IMessageBlockerService extends Listener {
+public interface MessageBlocker extends Listener {
     /**
-     * Creates a dummy {@link IMessageBlockerService} which will not block any messages, but will behave like an active message blocker
+     * Creates a dummy {@link MessageBlocker} which will not block any messages, but will behave like an active message blocker
      *
      * @return new message blocker instance
      */
-    static IMessageBlockerService dummy(Plugin plugin) {
-        return new IMessageBlockerService() {
+    static MessageBlocker dummy(Plugin plugin) {
+        return new MessageBlocker() {
             @Override
             public boolean isBlocked(Player player) {
                 return false;
@@ -86,7 +86,7 @@ public interface IMessageBlockerService extends Listener {
     Plugin plugin();
 
     /**
-     * Executres the mapping function when the blocker is enabled.
+     * Executes the mapping function when the blocker is enabled.
      *
      * @param value initial value
      * @param map   mapping function to apply
@@ -98,5 +98,12 @@ public interface IMessageBlockerService extends Listener {
             return map.apply(value);
         }
         return value;
+    }
+
+    /**
+     * Executes the runnable when the blocker is enabled.
+     */
+    default void ifEnabled(Runnable runnable) {
+        if (isActive()) runnable.run();
     }
 }
