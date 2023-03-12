@@ -18,7 +18,7 @@ dependencies {
     compileOnly("org.jetbrains", "annotations", "20.1.0")
     implementation("net.kyori", "adventure-api", "4.9.1")
 
-    testImplementation("org.junit.jupiter", "junit-jupiter-api", "5.6.0")
+    testImplementation("org.junit.jupiter", "junit-jupiter-api", "5.9.2")
     testRuntimeOnly("org.junit.jupiter", "junit-jupiter-engine")
 }
 
