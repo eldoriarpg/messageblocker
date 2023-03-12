@@ -14,7 +14,7 @@ repositories {
 
 dependencies {
     compileOnly("org.spigotmc", "spigot-api", "1.13.2-R0.1-SNAPSHOT")
-    compileOnly("com.comphenix.protocol", "ProtocolLib", "4.7.0")
+    compileOnly("com.comphenix.protocol", "ProtocolLib", "4.8.0")
     compileOnly("org.jetbrains", "annotations", "20.1.0")
     implementation("net.kyori", "adventure-api", "4.9.1")
 
