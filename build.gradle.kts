@@ -16,7 +16,7 @@ dependencies {
     compileOnly("org.spigotmc", "spigot-api", "1.13.2-R0.1-SNAPSHOT")
     compileOnly("com.comphenix.protocol", "ProtocolLib", "4.8.0")
     compileOnly("org.jetbrains", "annotations", "20.1.0")
-    implementation("net.kyori", "adventure-api", "4.9.1")
+    implementation("net.kyori", "adventure-api", "4.12.0")
 
     testImplementation("org.junit.jupiter", "junit-jupiter-api", "5.6.0")
     testRuntimeOnly("org.junit.jupiter", "junit-jupiter-engine")
