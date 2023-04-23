@@ -1,5 +1,6 @@
 package de.eldoria.messageblocker;
 
+import de.eldoria.messageblocker.blocker.LegacyMessageBlockerImpl;
 import de.eldoria.messageblocker.blocker.MessageBlocker;
 import de.eldoria.messageblocker.blocker.MessageBlockerImpl;
 import org.bukkit.plugin.Plugin;
@@ -26,15 +27,24 @@ public class MessageBlockerBuilder {
         return this;
     }
 
-    public MessageBlockerBuilder withExectuor(ExecutorService executor) {
+    public MessageBlockerBuilder withExecutor(ExecutorService executor) {
         this.executor = executor;
         return this;
     }
 
     public MessageBlocker build() {
-        if (plugin.getServer().getPluginManager().isPluginEnabled("ProtocolLib")) {
-            return MessageBlockerAPI.register(new MessageBlockerImpl(plugin, executor, whitelisted));
+        if (!plugin.getServer().getPluginManager().isPluginEnabled("ProtocolLib")) {
+            return MessageBlocker.dummy(plugin);
         }
-        return MessageBlocker.dummy(plugin);
+
+        plugin.getLogger().info("Initializing message blocker. Whitelisted terms: " + String.join(", ", whitelisted));
+
+        if (Integer.parseInt(plugin.getServer().getVersion().split("\\.")[1]) >= 19) {
+            // chat signing.
+            plugin.getLogger().info("Detected Chat signing support");
+            return MessageBlockerAPI.register(new MessageBlockerImpl(plugin, Executors.newSingleThreadExecutor(), whitelisted));
+        }
+        plugin.getLogger().info("Using legacy implementation without message signing.");
+        return MessageBlockerAPI.register(new LegacyMessageBlockerImpl(plugin, Executors.newSingleThreadExecutor(), whitelisted));
     }
 }
