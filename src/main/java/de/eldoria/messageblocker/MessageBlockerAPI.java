@@ -1,5 +1,6 @@
 package de.eldoria.messageblocker;
 
+import de.eldoria.messageblocker.blocker.LegacyMessageBlockerImpl;
 import de.eldoria.messageblocker.blocker.MessageBlocker;
 import de.eldoria.messageblocker.blocker.MessageBlockerImpl;
 import org.bukkit.plugin.Plugin;
@@ -27,7 +28,7 @@ public final class MessageBlockerAPI {
         if (!descr.getDepend().contains("ProtocolLib") || !descr.getSoftDepend().contains("ProtocolLib")) {
             plugin.getLogger().warning("The MessageBlocker API is used, but ProtocolLib is not listed as depend or soft depend.");
         }
-        return blocker.computeIfAbsent(plugin.getClass(), k -> init(init(plugin)));
+        return blocker.computeIfAbsent(plugin.getClass(), k -> init(builder(plugin).build()));
     }
 
     /**
@@ -50,13 +51,6 @@ public final class MessageBlockerAPI {
         return blocker.computeIfAbsent(messageBlockerService.plugin().getClass(), key -> init(messageBlockerService));
     }
 
-    private static MessageBlocker init(Plugin plugin) {
-        if (!plugin.getServer().getPluginManager().isPluginEnabled("ProtocolLib")) {
-            plugin.getLogger().warning("ProtocolLib not found. It is required to use the MessageBlocker API");
-            return MessageBlocker.dummy(plugin);
-        }
-        return new MessageBlockerImpl(plugin, Executors.newSingleThreadExecutor(), new HashSet<>());
-    }
     private static MessageBlocker init(MessageBlocker service) {
         service.init();
         return service;

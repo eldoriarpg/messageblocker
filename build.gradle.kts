@@ -1,11 +1,11 @@
 plugins {
     java
     `maven-publish`
-    id("de.chojo.publishdata") version "1.0.1"
+    id("de.chojo.publishdata") version "1.2.4"
 }
 
 group = "de.eldoria"
-version = "1.1.1"
+version = "1.1.2"
 
 repositories {
     maven("https://eldonexus.de/repository/maven-public")
@@ -13,12 +13,12 @@ repositories {
 }
 
 dependencies {
-    compileOnly("org.spigotmc", "spigot-api", "1.13.2-R0.1-SNAPSHOT")
-    compileOnly("com.comphenix.protocol", "ProtocolLib", "4.7.0")
-    compileOnly("org.jetbrains", "annotations", "20.1.0")
-    implementation("net.kyori", "adventure-api", "4.9.1")
+    compileOnly("org.spigotmc", "spigot-api", "1.16.5-R0.1-SNAPSHOT")
+    compileOnly("com.comphenix.protocol", "ProtocolLib", "5.0.0-SNAPSHOT")
+    compileOnly("org.jetbrains", "annotations", "24.0.1")
+    implementation("net.kyori", "adventure-api", "4.13.1")
 
-    testImplementation("org.junit.jupiter", "junit-jupiter-api", "5.6.0")
+    testImplementation("org.junit.jupiter", "junit-jupiter-api", "5.9.2")
     testRuntimeOnly("org.junit.jupiter", "junit-jupiter-engine")
 }
 
