@@ -39,7 +39,7 @@ public class MessageBlockerBuilder {
 
         plugin.getLogger().info("Initializing message blocker. Whitelisted terms: " + String.join(", ", whitelisted));
 
-        if (Integer.parseInt(plugin.getServer().getVersion().split("\\.")[1]) >= 19) {
+        if (Integer.parseInt(plugin.getServer().getVersion().split("\\D")[1]) >= 19) {
             // chat signing.
             plugin.getLogger().info("Detected Chat signing support");
             return MessageBlockerAPI.register(new MessageBlockerImpl(plugin, Executors.newSingleThreadExecutor(), whitelisted));
