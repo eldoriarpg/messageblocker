@@ -1,50 +1,77 @@
 package de.eldoria.messageblocker;
 
-import de.eldoria.messageblocker.blocker.LegacyMessageBlockerImpl;
 import de.eldoria.messageblocker.blocker.MessageBlocker;
-import de.eldoria.messageblocker.blocker.MessageBlockerImpl;
+import de.eldoria.messageblocker.blocker.PaperMessageBlocker;
 import org.bukkit.plugin.Plugin;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.Executor;
 
-@SuppressWarnings("unused")
-public class MessageBlockerBuilder {
+/**
+ * Builds a {@link MessageBlocker}.
+ * <p>
+ * On servers without Paper's chat API, {@link #build()} returns a {@link MessageBlocker#dummy(Plugin) dummy}.
+ */
+public final class MessageBlockerBuilder {
+    private static final int DEFAULT_QUEUE_SIZE = 100;
 
-    private Plugin plugin;
-    private ExecutorService executor = Executors.newSingleThreadExecutor();
-    private final Set<String> whitelisted = new HashSet<>();
+    private final Plugin plugin;
+    private int queueSize = DEFAULT_QUEUE_SIZE;
+    private Executor executor = Runnable::run;
 
+    /**
+     * Creates a new builder.
+     *
+     * @param plugin owning plugin
+     */
     public MessageBlockerBuilder(Plugin plugin) {
         this.plugin = plugin;
     }
 
-    public MessageBlockerBuilder addWhitelisted(String... terms) {
-        whitelisted.addAll(Arrays.asList(terms));
+    /**
+     * Sets the maximum number of messages held per player. When full, the oldest message is dropped.
+     * Defaults to 100.
+     *
+     * @param queueSize maximum number of held messages, at least 1
+     * @return this builder
+     */
+    public MessageBlockerBuilder queueSize(int queueSize) {
+        if (queueSize < 1) throw new IllegalArgumentException("Queue size must be at least 1 but was " + queueSize);
+        this.queueSize = queueSize;
         return this;
     }
 
-    public MessageBlockerBuilder withExecutor(ExecutorService executor) {
+    /**
+     * Sets the executor delivering held messages on unblock. By default they are delivered on the thread calling
+     * {@link MessageBlocker#unblockPlayer(org.bukkit.entity.Player)}.
+     *
+     * @param executor executor
+     * @return this builder
+     */
+    public MessageBlockerBuilder executor(Executor executor) {
         this.executor = executor;
         return this;
     }
 
+    /**
+     * Builds the message blocker and registers its listeners.
+     *
+     * @return the message blocker, or a dummy if the server does not provide Paper's chat API
+     */
     public MessageBlocker build() {
-        if (!plugin.getServer().getPluginManager().isPluginEnabled("ProtocolLib")) {
+        if (!hasPaperChat()) {
+            plugin.getLogger().warning("Paper chat API not found. Messages will not be blocked.");
             return MessageBlocker.dummy(plugin);
         }
 
-        plugin.getLogger().info("Initializing message blocker. Whitelisted terms: " + String.join(", ", whitelisted));
+        return PaperMessageBlocker.start(plugin, queueSize, executor);
+    }
 
-        if (Integer.parseInt(plugin.getServer().getVersion().split("\\D")[1]) >= 19) {
-            // chat signing.
-            plugin.getLogger().info("Detected Chat signing support");
-            return MessageBlockerAPI.register(new MessageBlockerImpl(plugin, Executors.newSingleThreadExecutor(), whitelisted));
+    private static boolean hasPaperChat() {
+        try {
+            Class.forName("io.papermc.paper.event.player.AsyncChatEvent");
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
         }
-        plugin.getLogger().info("Using legacy implementation without message signing.");
-        return MessageBlockerAPI.register(new LegacyMessageBlockerImpl(plugin, Executors.newSingleThreadExecutor(), whitelisted));
     }
 }
