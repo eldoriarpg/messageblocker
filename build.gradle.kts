@@ -1,56 +1,49 @@
 plugins {
-    java
+    `java-library`
     `maven-publish`
-    id("de.chojo.publishdata") version "1.4.0"
+    alias(libs.plugins.publishdata)
 }
 
-group = "de.eldoria"
-version = "1.1.3"
-
 repositories {
-    maven("https://eldonexus.de/repository/maven-public")
-    maven("https://eldonexus.de/repository/maven-proxies")
+    mavenCentral()
+    maven("https://repo.papermc.io/repository/maven-public/")
+    maven("https://eldonexus.de/repository/maven-public/")
 }
 
 dependencies {
-    compileOnly("org.spigotmc", "spigot-api", "1.16.5-R0.1-SNAPSHOT")
-    compileOnly("com.comphenix.protocol", "ProtocolLib", "5.0.0-SNAPSHOT")
-    compileOnly("org.jetbrains", "annotations", "24.1.0")
-    implementation("net.kyori", "adventure-api", "4.17.0")
+    compileOnly(libs.paper)
+    compileOnly(libs.protocollib)
+    compileOnly(libs.jetbrains.annotations)
 
-    testImplementation("org.junit.jupiter", "junit-jupiter-api", "5.10.3")
-    testRuntimeOnly("org.junit.jupiter", "junit-jupiter-engine")
+    testImplementation(libs.paper)
+    testImplementation(libs.junit.jupiter.api)
+    testRuntimeOnly(libs.junit.jupiter.engine)
+    testRuntimeOnly(libs.junit.platform.launcher)
 }
 
-java{
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
     withSourcesJar()
     withJavadocJar()
-    sourceCompatibility = JavaVersion.VERSION_11
 }
 
-publishData{
-    useEldoNexusRepos()
-    publishTask("jar")
-    publishTask("sourcesJar")
-    publishTask("javadocJar")
+publishData {
+    eldoNexus(dev = false)
 }
 
 publishing {
-    publications.create<MavenPublication>("maven") {
-        publishData.configurePublication(this)
-    }
-
-    repositories {
-        maven {
-            authentication {
-                credentials(PasswordCredentials::class) {
-                    username = System.getenv("NEXUS_USERNAME")
-                    password = System.getenv("NEXUS_PASSWORD")
+    publications.withType<MavenPublication>().configureEach {
+        pom {
+            url.set("https://github.com/eldoriarpg/messageblocker")
+            developers {
+                developer {
+                    name.set("Nora Fülling")
+                    organization.set("EldoriaRPG")
+                    organizationUrl.set("https://github.com/eldoriarpg")
                 }
             }
-
-            name = "EldoNexus"
-            url = uri(publishData.getRepository())
         }
     }
 }
@@ -60,7 +53,7 @@ tasks {
         options.encoding = "UTF-8"
     }
 
-    compileTestJava{
+    compileTestJava {
         options.encoding = "UTF-8"
     }
 
