@@ -10,8 +10,8 @@ import java.util.function.Function;
 /**
  * Holds back chat for players while they are blocked and delivers it once they are unblocked.
  * <p>
- * Player chat is held. Messages that have to reach a blocked player are sent with
- * {@link #sendBypassing(Player, Component)}.
+ * Player chat is always held. System and disguised chat are held only when ProtocolLib is installed. Messages
+ * that have to reach a blocked player are sent with {@link #sendBypassing(Player, Component)}.
  * <p>
  * All methods may be called from any thread.
  */

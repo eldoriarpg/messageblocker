@@ -12,11 +12,13 @@ import java.util.concurrent.Executor;
  * On servers without Paper's chat API, {@link #build()} returns a {@link MessageBlocker#dummy(Plugin) dummy}.
  */
 public final class MessageBlockerBuilder {
+    private static final String PROTOCOL_LIB = "ProtocolLib";
     private static final int DEFAULT_QUEUE_SIZE = 100;
 
     private final Plugin plugin;
     private int queueSize = DEFAULT_QUEUE_SIZE;
     private Executor executor = Runnable::run;
+    private boolean interceptSystemMessages = true;
 
     /**
      * Creates a new builder.
@@ -53,6 +55,18 @@ public final class MessageBlockerBuilder {
     }
 
     /**
+     * Sets whether system messages are held as well. This requires ProtocolLib and is enabled by default.
+     * Without ProtocolLib only player chat is held.
+     *
+     * @param interceptSystemMessages true to hold system messages
+     * @return this builder
+     */
+    public MessageBlockerBuilder interceptSystemMessages(boolean interceptSystemMessages) {
+        this.interceptSystemMessages = interceptSystemMessages;
+        return this;
+    }
+
+    /**
      * Builds the message blocker and registers its listeners.
      *
      * @return the message blocker, or a dummy if the server does not provide Paper's chat API
@@ -63,7 +77,20 @@ public final class MessageBlockerBuilder {
             return MessageBlocker.dummy(plugin);
         }
 
-        return PaperMessageBlocker.start(plugin, queueSize, executor);
+        boolean protocolLib = interceptSystemMessages && plugin.getServer().getPluginManager().isPluginEnabled(PROTOCOL_LIB);
+        if (interceptSystemMessages && !declaresProtocolLib()) {
+            plugin.getLogger().warning("ProtocolLib is not listed as depend or softdepend. System messages are only held when ProtocolLib is enabled before this plugin.");
+        }
+        if (interceptSystemMessages && !protocolLib) {
+            plugin.getLogger().info("ProtocolLib is not enabled. Only player chat will be held.");
+        }
+
+        return PaperMessageBlocker.start(plugin, queueSize, executor, protocolLib);
+    }
+
+    private boolean declaresProtocolLib() {
+        var meta = plugin.getPluginMeta();
+        return meta.getPluginDependencies().contains(PROTOCOL_LIB) || meta.getPluginSoftDependencies().contains(PROTOCOL_LIB);
     }
 
     private static boolean hasPaperChat() {

@@ -25,6 +25,8 @@ import java.util.logging.Level;
  * through the regular send path, so the server assigns chat indices and signature references at that time. A
  * held message is replayed unsigned when its signature would no longer be accepted by the client.
  * <p>
+ * With ProtocolLib, system and disguised chat are held as packets in the same queue.
+ * <p>
  * Instances are created by {@code MessageBlockerBuilder}.
  */
 public final class PaperMessageBlocker implements MessageBlocker {
@@ -32,24 +34,28 @@ public final class PaperMessageBlocker implements MessageBlocker {
     private final int capacity;
     private final Executor executor;
     private final Map<UUID, ViewerQueue<HeldMessage>> queues = new ConcurrentHashMap<>();
+    private final @Nullable SystemChatInterceptor interceptor;
 
-    private PaperMessageBlocker(Plugin plugin, int capacity, Executor executor) {
+    private PaperMessageBlocker(Plugin plugin, int capacity, Executor executor, boolean interceptSystemMessages) {
         this.plugin = plugin;
         this.capacity = capacity;
         this.executor = executor;
+        this.interceptor = interceptSystemMessages ? new SystemChatInterceptor(plugin, this::holdingQueue) : null;
     }
 
     /**
      * Creates a blocker and registers its listeners.
      *
-     * @param plugin   owning plugin
-     * @param capacity maximum number of held messages per player, the oldest is dropped when full
-     * @param executor executor delivering held messages on unblock
+     * @param plugin                  owning plugin
+     * @param capacity                maximum number of held messages per player, the oldest is dropped when full
+     * @param executor                executor delivering held messages on unblock
+     * @param interceptSystemMessages true to hold system messages as well, requires ProtocolLib to be enabled
      * @return the running blocker
      */
-    public static PaperMessageBlocker start(Plugin plugin, int capacity, Executor executor) {
-        var blocker = new PaperMessageBlocker(plugin, capacity, executor);
+    public static PaperMessageBlocker start(Plugin plugin, int capacity, Executor executor, boolean interceptSystemMessages) {
+        var blocker = new PaperMessageBlocker(plugin, capacity, executor, interceptSystemMessages);
         plugin.getServer().getPluginManager().registerEvents(new BlockerListener(blocker), plugin);
+        if (blocker.interceptor != null) blocker.interceptor.register();
         return blocker;
     }
 
@@ -82,7 +88,7 @@ public final class PaperMessageBlocker implements MessageBlocker {
 
     @Override
     public void sendBypassing(Player player, Component message) {
-        player.sendMessage(message);
+        player.sendMessage(interceptor != null ? BypassMarker.mark(message) : message);
     }
 
     @Override
@@ -120,9 +126,10 @@ public final class PaperMessageBlocker implements MessageBlocker {
     }
 
     /**
-     * Delivers everything held to players still online.
+     * Delivers everything held to players still online and stops intercepting.
      */
     void shutdown() {
+        if (interceptor != null) interceptor.unregister();
         for (var entry : queues.entrySet()) {
             var queue = entry.getValue();
             queue.unblock();
@@ -147,6 +154,7 @@ public final class PaperMessageBlocker implements MessageBlocker {
             switch (message) {
                 case HeldMessage.SignedChat chat -> replayChat(viewer, chat, directSigned.get(chat.sender()));
                 case HeldMessage.SystemPacket packet -> {
+                    if (interceptor != null) interceptor.resend(viewer, packet.packet());
                 }
             }
         } catch (RuntimeException e) {
