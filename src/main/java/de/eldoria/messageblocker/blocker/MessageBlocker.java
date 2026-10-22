@@ -1,97 +1,88 @@
 package de.eldoria.messageblocker.blocker;
 
+import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
-public interface MessageBlocker extends Listener {
+/**
+ * Holds back chat for players while they are blocked and delivers it once they are unblocked.
+ * <p>
+ * Player chat is always held. System and disguised chat are held only when ProtocolLib is installed. Messages
+ * that have to reach a blocked player are sent with {@link #sendBypassing(Player, Component)}.
+ * <p>
+ * All methods may be called from any thread.
+ */
+public interface MessageBlocker {
     /**
-     * Creates a dummy {@link MessageBlocker} which will not block any messages, but will behave like an active message blocker
+     * Creates a message blocker that never blocks anything.
+     * <p>
+     * {@link #isActive()} returns false, {@link #isBlocked(Player)} always returns false and
+     * {@link #sendBypassing(Player, Component)} sends the message directly.
      *
-     * @return new message blocker instance
+     * @param plugin owning plugin
+     * @return new inactive message blocker
      */
     static MessageBlocker dummy(Plugin plugin) {
-        return new MessageBlocker() {
-            @Override
-            public boolean isBlocked(Player player) {
-                return false;
-            }
-
-            @Override
-            public Plugin plugin() {
-                return plugin;
-            }
-        };
-    }
-
-    default void init(){
-
+        return new DummyMessageBlocker(plugin);
     }
 
     /**
-     * Checks if the message contains a generally whitelisted character. This can be used to allow messages identified by a plugin prefix to be delivered.
+     * Starts holding messages for a player.
      *
-     * @param value value to check
-     * @return true when a whitelisted char combination was found
-     */
-    default boolean isWhitelisted(String value) {
-        return false;
-    }
-
-    /**
      * @param player player to block
      */
-    default void blockPlayer(Player player) {
-    }
+    void blockPlayer(Player player);
 
     /**
-     * Unblock a player from message blocker
+     * Stops holding messages for a player and delivers the held messages in the order they arrived.
+     * <p>
+     * Messages arriving while the held messages are delivered are sent after them.
      *
      * @param player player to unblock
-     * @return a completable future which will be completed once all blocked packets were send
+     * @return a future completed once all held messages were sent
      */
-    default CompletableFuture<Void> unblockPlayer(Player player) {
-        return CompletableFuture.completedFuture(null);
-    }
+    CompletableFuture<Void> unblockPlayer(Player player);
 
     /**
-     * Announces that a player will soon receive a message which needs to be let through
-     *
-     * @param player player which will receive the message
-     * @param key    a key inside the message. This needs to be part of the content of the message in case senstive way.
-     */
-    default void announce(Player player, String key) {
-    }
-
-    /**
-     * Indicates whether the service is active or not.
-     *
-     * @return true if active
-     */
-    default boolean isActive() {
-        return false;
-    }
-
-    /**
-     * Checks if the messages for a player are blocked
+     * Checks whether messages for a player are currently blocked.
      *
      * @param player player to check
-     * @return true if the player has blocked messages currently
+     * @return true if the player is blocked
      */
     boolean isBlocked(Player player);
 
+    /**
+     * Indicates whether this blocker actually holds messages.
+     *
+     * @return true if active, false for a {@link #dummy(Plugin) dummy}
+     */
+    boolean isActive();
+
+    /**
+     * Sends a message to a player, delivering it immediately even while the player is blocked.
+     *
+     * @param player  receiver
+     * @param message message to send
+     */
+    void sendBypassing(Player player, Component message);
+
+    /**
+     * The plugin owning this blocker.
+     *
+     * @return owning plugin
+     */
     Plugin plugin();
 
     /**
-     * Executes the mapping function when the blocker is enabled.
+     * Applies a mapping function when the blocker is active.
      *
      * @param value initial value
      * @param map   mapping function to apply
      * @param <T>   type
-     * @return mapped value or value
+     * @return the mapped value if active, otherwise the initial value
      */
     default <T> T ifEnabled(T value, Function<T, T> map) {
         if (isActive()) {
@@ -101,7 +92,9 @@ public interface MessageBlocker extends Listener {
     }
 
     /**
-     * Executes the runnable when the blocker is enabled.
+     * Executes the runnable when the blocker is active.
+     *
+     * @param runnable runnable to execute
      */
     default void ifEnabled(Runnable runnable) {
         if (isActive()) runnable.run();

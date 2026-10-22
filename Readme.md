@@ -4,13 +4,14 @@
 [![Build](https://img.shields.io/github/workflow/status/eldoriarpg/messageblocker/Verify%20state?style=for-the-badge&label=Build)][verify]
 
 [![Releases](https://img.shields.io/nexus/maven-releases/de.eldoria/messageblocker?label=Release&logo=Release&server=https%3A%2F%2Feldonexus.de&style=for-the-badge)][release]
-[![Development](https://img.shields.io/nexus/maven-dev/de.eldoria/messageblocker?label=DEV&logo=Release&server=https%3A%2F%2Feldonexus.de&style=for-the-badge)][development]
 [![Snapshots](https://img.shields.io/nexus/s/de.eldoria/messageblocker?color=orange&label=Snapshot&server=https%3A%2F%2Feldonexus.de&style=for-the-badge)][snapshot]
 
 <!-- [![Text](image_link)][link_anchor] -->
 <!-- [anchor]: link> -->
 
 # Dependency
+
+Requires Paper 1.21.11 or newer and Java 25. ProtocolLib is optional.
 
 **Gradle**
 
@@ -20,7 +21,7 @@ repositories {
 }
 
 dependencies {
-    implementation("de.eldoria", "messageblocker", "version")
+    implementation("de.eldoria", "messageblocker", "2.0.0")
 }
 ```
 
@@ -35,33 +36,76 @@ dependencies {
 <dependency>
     <groupId>de.eldoria</groupId>
     <artifactId>messageblocker</artifactId>
-    <version>version</version>
+    <version>2.0.0</version>
 </dependency>
 ```
 
+Adventure is provided by Paper and is not shaded.
+
 # Usage
 
-Use `MessageBlockerAPI` to create a messageblocker. You will receive a message blocker instance, which will be a blocker
-or a dummy. If ProtocolLib is not active on the server a dummy will be returned which can be used as if the blocker
-would run.
+``` java
+MessageBlocker blocker = MessageBlockerAPI.create(plugin);
+
+blocker.blockPlayer(player);
+blocker.sendBypassing(player, Component.text("Type a name into chat"));
+blocker.unblockPlayer(player).thenRun(() -> player.sendMessage(Component.text("Done")));
+```
+
+Use `MessageBlockerAPI.create(Plugin)` to get the message blocker of your plugin, or `MessageBlockerAPI.builder(Plugin)`
+to configure one:
+
+``` java
+MessageBlocker blocker = MessageBlockerAPI.builder(plugin)
+        .queueSize(100)
+        .executor(executor)
+        .interceptSystemMessages(true)
+        .build();
+```
+
+On a server without Paper's chat API a dummy is returned, which never blocks but can be used like an active blocker.
+`MessageBlocker.dummy(Plugin)` creates one directly.
+
+## What is held
+
+- **Player chat** is always held. Blocked players are swapped out of the viewers of Paper's `AsyncChatEvent` and the
+  message is queued before the server packs it for them. On unblock it is sent through the regular chat path, so chat
+  signing stays valid. A message is delivered as unsigned chat when its signature would no longer be accepted: the sender
+  logged out or rejoined, the message is older than seven minutes, or a newer signed message of the same sender, such as
+  a `/msg`, already reached the player.
+- **System messages and disguised chat** are held when ProtocolLib is installed. Add ProtocolLib as `softdepend` (or
+  `depend`) so it is enabled before your plugin. Action bar messages are never held.
+
+Up to 100 messages are held per player by default. When the queue is full, the oldest message is dropped. Held messages
+of a player are dropped when the player leaves.
 
 ## Block messages
 
-To block messages you have to call `MessageBlockerService#blockPlayer(Player)` method.
+Call `MessageBlocker#blockPlayer(Player)`.
 
 ## Unblock messages
 
-To unblock the `MessageBlockerService#unblockPlayer(Player)`. This will return a future which will be completed when the
-player has received all blocked messages.
+Call `MessageBlocker#unblockPlayer(Player)`. It returns a future completed once all held messages were sent. By default
+they are sent on the calling thread; use `MessageBlockerBuilder#executor(Executor)` to change that. Messages arriving
+while held messages are delivered are sent after them.
 
 ## Send messages through the blocker
 
-If you want to send a message to the player you have to announce it.\
-Use `MessageBlockerService#announce(Player, String)` to announce a message to the blocker. The next message for this
-player which contains the string will be send to the player.
+Send messages that have to reach a blocked player with `MessageBlocker#sendBypassing(Player, Component)`. They are never
+held.
 
-As an alternative you can add a plugin prefix or something which will be contained in the message to the whitelist when
-you use the builder to create the `MessageBlockerService`.
+## Limitations
+
+- Plugins cancelling `AsyncChatEvent` and broadcasting the message themselves bypass the blocker for player chat.
+- Viewer-aware chat renderers receive a stand-in audience instead of the `Player` for blocked viewers. Its pointers
+  (UUID, name, display name) are those of the player.
+
+## Migrating from 1.x
+
+- Spigot is no longer supported.
+- `announce(Player, String)` and the text whitelist were removed. Use `sendBypassing(Player, Component)`.
+- `MessageBlockerBuilder#withExecutor` is now `executor`, `addWhitelisted` was removed.
+- ProtocolLib is optional; without it only player chat is held.
 
 [wakatime]: https://wakatime.com/badge/github/eldoriarpg/messageblocker
 
@@ -71,6 +115,5 @@ you use the builder to create the `MessageBlockerService`.
 
 [release]: https://eldonexus.de/#browse/browse:maven-releases:de%2Feldoria%2Fmessageblocker
 
-[development]: https://eldonexus.de/#browse/browse:maven-dev:de%2Feldoria%2Fmessageblocker
 
 [snapshot]: https://eldonexus.de/#browse/browse:maven-snapshots:de%2Feldoria%2Fmessageblocker

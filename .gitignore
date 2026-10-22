@@ -2,7 +2,6 @@
 /config/
 
 .gradle
-gradle.properties
 **/build/
 !src/**/build/
 
@@ -33,3 +32,5 @@ dependency-reduced-pom.xml
 buildNumber.properties
 .mvn/timing.properties
 .mvn/wrapper/maven-wrapper.jar
+
+.concept/

@@ -1,58 +1,39 @@
 package de.eldoria.messageblocker;
 
-import de.eldoria.messageblocker.blocker.LegacyMessageBlockerImpl;
 import de.eldoria.messageblocker.blocker.MessageBlocker;
-import de.eldoria.messageblocker.blocker.MessageBlockerImpl;
 import org.bukkit.plugin.Plugin;
 
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.concurrent.Executors;
+import java.util.concurrent.ConcurrentHashMap;
 
-@SuppressWarnings("unused")
+/**
+ * Entry point for creating message blockers.
+ */
 public final class MessageBlockerAPI {
-    private static final Map<Class<? extends Plugin>, MessageBlocker> blocker = new HashMap<>();
+    private static final Map<Class<? extends Plugin>, MessageBlocker> BLOCKERS = new ConcurrentHashMap<>();
 
     private MessageBlockerAPI() {
+        throw new UnsupportedOperationException("This is a utility class.");
     }
 
     /**
-     * Creates a default message blocker. This will always return the same instance after the first call.
+     * Creates a message blocker with default settings. Returns the same instance for every call with the same
+     * plugin.
      *
-     * @param plugin plugin
-     * @return message blocker instance of the plugin
+     * @param plugin owning plugin
+     * @return message blocker of the plugin
      */
     public static MessageBlocker create(Plugin plugin) {
-        var descr = plugin.getDescription();
-        if (!descr.getDepend().contains("ProtocolLib") || !descr.getSoftDepend().contains("ProtocolLib")) {
-            plugin.getLogger().warning("The MessageBlocker API is used, but ProtocolLib is not listed as depend or soft depend.");
-        }
-        return blocker.computeIfAbsent(plugin.getClass(), k -> init(builder(plugin).build()));
+        return BLOCKERS.computeIfAbsent(plugin.getClass(), key -> builder(plugin).build());
     }
 
     /**
-     * Creates a new builder.
+     * Creates a new builder. Every built blocker registers its own listeners, so build only one per plugin.
      *
-     * @param plugin plugin
-     * @return message new builder instance
+     * @param plugin owning plugin
+     * @return new builder
      */
     public static MessageBlockerBuilder builder(Plugin plugin) {
         return new MessageBlockerBuilder(plugin);
-    }
-
-    /**
-     * Registers a message blocker. This blocker will only be registered when no builder was registered before.
-     *
-     * @param messageBlockerService message blocker
-     * @return message blocker
-     */
-    public static MessageBlocker register(MessageBlocker messageBlockerService) {
-        return blocker.computeIfAbsent(messageBlockerService.plugin().getClass(), key -> init(messageBlockerService));
-    }
-
-    private static MessageBlocker init(MessageBlocker service) {
-        service.init();
-        return service;
     }
 }
