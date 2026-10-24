@@ -1,3 +1,8 @@
+/*
+ *     SPDX-License-Identifier: LGPL-3.0-or-later
+ *
+ *     Copyright (C) EldoriaRPG Team and Contributor
+ */
 package de.eldoria.messageblocker.blocker;
 
 import org.junit.jupiter.api.Test;
@@ -144,11 +149,12 @@ class ViewerQueueTest {
         var replayStarted = new CountDownLatch(1);
         var releaseReplay = new CountDownLatch(1);
 
-        var flusher = Thread.ofPlatform().start(() -> queue.flush((message, direct) -> {
-            replayStarted.countDown();
-            await(releaseReplay);
-            delivered.add(message);
-        }));
+        var flusher = Thread.ofPlatform()
+                .start(() -> queue.flush((message, direct) -> {
+                    replayStarted.countDown();
+                    await(releaseReplay);
+                    delivered.add(message);
+                }));
         assertTrue(replayStarted.await(5, TimeUnit.SECONDS));
 
         var sender = Thread.ofPlatform().start(() -> {

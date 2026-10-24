@@ -1,3 +1,8 @@
+/*
+ *     SPDX-License-Identifier: LGPL-3.0-or-later
+ *
+ *     Copyright (C) EldoriaRPG Team and Contributor
+ */
 package de.eldoria.messageblocker;
 
 import de.eldoria.messageblocker.blocker.MessageBlocker;
@@ -24,7 +29,8 @@ public final class MessageBlockerAPI {
      * @return message blocker of the plugin
      */
     public static MessageBlocker create(Plugin plugin) {
-        return BLOCKERS.computeIfAbsent(plugin.getClass(), key -> builder(plugin).build());
+        return BLOCKERS.computeIfAbsent(
+                plugin.getClass(), key -> builder(plugin).build());
     }
 
     /**

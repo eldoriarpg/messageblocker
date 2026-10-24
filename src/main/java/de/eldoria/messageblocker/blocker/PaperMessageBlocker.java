@@ -1,3 +1,8 @@
+/*
+ *     SPDX-License-Identifier: LGPL-3.0-or-later
+ *
+ *     Copyright (C) EldoriaRPG Team and Contributor
+ */
 package de.eldoria.messageblocker.blocker;
 
 import io.papermc.paper.event.player.AsyncChatEvent;
@@ -52,7 +57,8 @@ public final class PaperMessageBlocker implements MessageBlocker {
      * @param interceptSystemMessages true to hold system messages as well, requires ProtocolLib to be enabled
      * @return the running blocker
      */
-    public static PaperMessageBlocker start(Plugin plugin, int capacity, Executor executor, boolean interceptSystemMessages) {
+    public static PaperMessageBlocker start(
+            Plugin plugin, int capacity, Executor executor, boolean interceptSystemMessages) {
         var blocker = new PaperMessageBlocker(plugin, capacity, executor, interceptSystemMessages);
         plugin.getServer().getPluginManager().registerEvents(new BlockerListener(blocker), plugin);
         if (blocker.interceptor != null) blocker.interceptor.register();
@@ -61,7 +67,8 @@ public final class PaperMessageBlocker implements MessageBlocker {
 
     @Override
     public void blockPlayer(Player player) {
-        queues.computeIfAbsent(player.getUniqueId(), uuid -> new ViewerQueue<>(capacity)).block();
+        queues.computeIfAbsent(player.getUniqueId(), uuid -> new ViewerQueue<>(capacity))
+                .block();
         plugin.getLogger().fine(() -> "Blocking chat for player " + player.getName());
     }
 
@@ -164,7 +171,8 @@ public final class PaperMessageBlocker implements MessageBlocker {
 
     private void replayChat(Player viewer, HeldMessage.SignedChat chat, @Nullable Instant lastDirectSigned) {
         boolean sameSession = plugin.getServer().getPlayer(chat.sender()) == chat.senderAtCapture();
-        var mode = ReplayPolicy.decide(sameSession, chat.view().timestamp(), chat.at(), lastDirectSigned, Instant.now());
+        var mode =
+                ReplayPolicy.decide(sameSession, chat.view().timestamp(), chat.at(), lastDirectSigned, Instant.now());
         if (mode == ReplayPolicy.Mode.SIGNED) {
             viewer.sendMessage(chat.view(), chat.bound());
         } else {

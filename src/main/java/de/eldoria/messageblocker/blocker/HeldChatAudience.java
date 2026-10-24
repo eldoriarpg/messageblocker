@@ -1,3 +1,8 @@
+/*
+ *     SPDX-License-Identifier: LGPL-3.0-or-later
+ *
+ *     Copyright (C) EldoriaRPG Team and Contributor
+ */
 package de.eldoria.messageblocker.blocker;
 
 import net.kyori.adventure.audience.Audience;
