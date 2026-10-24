@@ -3,14 +3,17 @@ title: Setup
 sidebar_position: 2
 ---
 
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
 # Setup
 
 ## Requirements
 
 | What | Version |
 |---|---|
-| Server | Paper. The library is built against the Paper API 1.21.11. |
-| Java | 25. The library is compiled for Java 25, so your plugin and the server need Java 25 as well. |
+| Server | Paper 1.21.11 or newer. |
+| Java | 21 or newer. |
 | ProtocolLib | Optional. Built against ProtocolLib 5.4.0. |
 
 Without ProtocolLib, only player chat is held. With ProtocolLib, system messages and disguised chat are held as
@@ -27,12 +30,13 @@ Message Blocker is published to the EldoNexus repository.
 | Repository | `https://eldonexus.de/repository/maven-public/` |
 | Group | `de.eldoria` |
 | Artifact | `messageblocker` |
-| Version | `2.0.0` |
+| Version | `2.1.0` |
 
 Message Blocker is a library, not a plugin. It has no `plugin.yml`, so server owners cannot install it on their
 own. Shade it into your plugin jar.
 
-### Gradle (Kotlin DSL)
+<Tabs groupId="build-tool">
+<TabItem value="gradle" label="Gradle (Kotlin DSL)">
 
 Add the dependency with `implementation` and let the [Shadow](https://github.com/GradleUp/shadow) plugin put it
 into your jar:
@@ -51,7 +55,7 @@ repositories {
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
-    implementation("de.eldoria:messageblocker:2.0.0")
+    implementation("de.eldoria:messageblocker:2.1.0")
 }
 
 tasks.shadowJar {
@@ -61,7 +65,8 @@ tasks.shadowJar {
 
 Build your plugin with the `shadowJar` task.
 
-### Maven
+</TabItem>
+<TabItem value="maven" label="Maven">
 
 ```xml
 <repositories>
@@ -75,7 +80,7 @@ Build your plugin with the `shadowJar` task.
     <dependency>
         <groupId>de.eldoria</groupId>
         <artifactId>messageblocker</artifactId>
-        <version>2.0.0</version>
+        <version>2.1.0</version>
     </dependency>
 </dependencies>
 ```
@@ -108,6 +113,9 @@ Shade and relocate it with the `maven-shade-plugin`. Use the current version of 
     </plugins>
 </build>
 ```
+
+</TabItem>
+</Tabs>
 
 ### Why relocate
 

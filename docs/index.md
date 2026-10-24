@@ -38,9 +38,10 @@ blocker.unblockPlayer(player).thenRun(() -> player.sendMessage(Component.text("D
 
 ## Where to go next
 
-- [Setup](./setup.md): requirements and how to add the library to your build.
+- [Setup](./setup.mdx): requirements and how to add the library to your build.
 - [Using the blocker](./usage.md): create a blocker, block and unblock players, send your menu.
 - [What is held](./what-is-held.md): player chat, signed chat, system messages and what ProtocolLib changes.
 - [What server owners see](./server-owners.md): the log lines your plugin may print.
 - [Full example](./example.md): a small plugin that asks for a nickname in chat.
 - [Migrating from 1.x](./migrating.md): what changed in version 2.
+- [Javadoc](pathname:///message-blocker/javadoc/): every type and method.

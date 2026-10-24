@@ -10,6 +10,8 @@ Everything you need lives in two types:
 - `de.eldoria.messageblocker.MessageBlockerAPI` creates blockers.
 - `de.eldoria.messageblocker.blocker.MessageBlocker` is the blocker you work with.
 
+The [Javadoc](pathname:///message-blocker/javadoc/) lists every method.
+
 ## Create the blocker
 
 Create the blocker once, in `onEnable`, and keep it in a field.
@@ -117,8 +119,11 @@ has the same methods but never holds anything:
 - `isBlocked` and `isActive` always return `false`,
 - `sendBypassing` simply sends the message.
 
-So your code works the same either way. You can also make a dummy yourself with `MessageBlocker.dummy(plugin)`,
-for example to turn the blocker off with a setting of your own.
+So your code works the same either way. The library needs Paper, though: a server without Paper usually has no
+Adventure either, and there `sendBypassing` fails.
+
+You can also make a dummy yourself with `MessageBlocker.dummy(plugin)`, for example to turn the blocker off with a
+setting of your own.
 
 Two helpers run code only when the blocker is active:
 
