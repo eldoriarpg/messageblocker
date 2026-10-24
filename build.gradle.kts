@@ -13,12 +13,12 @@ repositories {
 dependencies {
     compileOnly(libs.paper)
     compileOnly(libs.protocollib)
-    compileOnly(libs.jetbrains.annotations)
+    compileOnly(libs.annotations)
 
     testImplementation(libs.paper)
-    testImplementation(libs.junit.jupiter.api)
-    testRuntimeOnly(libs.junit.jupiter.engine)
-    testRuntimeOnly(libs.junit.platform.launcher)
+    testImplementation(platform(libs.junit.bom))
+    testImplementation(libs.junit.jupiter)
+    testRuntimeOnly(libs.junit.launcher)
 }
 
 java {
