@@ -50,12 +50,17 @@ publishing {
 }
 
 tasks {
-    compileJava {
+    withType<JavaCompile>().configureEach {
+        options.release = 21
         options.encoding = "UTF-8"
     }
 
-    compileTestJava {
-        options.encoding = "UTF-8"
+    compileJava {
+        options.compilerArgs.addAll(listOf("--add-reads", "de.eldoria.messageblocker=ALL-UNNAMED"))
+    }
+
+    javadoc {
+        (options as StandardJavadocDocletOptions).addStringOption("-add-reads", "de.eldoria.messageblocker=ALL-UNNAMED")
     }
 
     test {
