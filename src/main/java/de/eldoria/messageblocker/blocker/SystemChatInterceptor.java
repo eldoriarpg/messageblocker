@@ -1,3 +1,8 @@
+/*
+ *     SPDX-License-Identifier: LGPL-3.0-or-later
+ *
+ *     Copyright (C) EldoriaRPG Team and Contributor
+ */
 package de.eldoria.messageblocker.blocker;
 
 import com.comphenix.protocol.PacketType;
@@ -40,8 +45,12 @@ final class SystemChatInterceptor extends PacketAdapter {
      * @param holdingQueue resolves the queue of a viewer if it is holding, otherwise null
      */
     SystemChatInterceptor(Plugin plugin, Function<Player, @Nullable ViewerQueue<HeldMessage>> holdingQueue) {
-        super(plugin, ListenerPriority.HIGHEST,
-                PacketType.Play.Server.SYSTEM_CHAT, PacketType.Play.Server.DISGUISED_CHAT, PacketType.Play.Server.CHAT);
+        super(
+                plugin,
+                ListenerPriority.HIGHEST,
+                PacketType.Play.Server.SYSTEM_CHAT,
+                PacketType.Play.Server.DISGUISED_CHAT,
+                PacketType.Play.Server.CHAT);
         this.manager = ProtocolLibrary.getProtocolManager();
         this.holdingQueue = holdingQueue;
     }
@@ -109,7 +118,8 @@ final class SystemChatInterceptor extends PacketAdapter {
             return content != null && BypassMarker.isMarked(content.getJson());
         } catch (RuntimeException e) {
             if (unreadableReported.compareAndSet(false, true)) {
-                plugin.getLogger().log(Level.WARNING, "Could not read chat packet content. System messages will not be held.", e);
+                plugin.getLogger()
+                        .log(Level.WARNING, "Could not read chat packet content. System messages will not be held.", e);
             }
             return true;
         }

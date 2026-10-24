@@ -1,3 +1,8 @@
+/*
+ *     SPDX-License-Identifier: LGPL-3.0-or-later
+ *
+ *     Copyright (C) EldoriaRPG Team and Contributor
+ */
 package de.eldoria.messageblocker.blocker;
 
 import org.jetbrains.annotations.Nullable;
@@ -33,8 +38,12 @@ final class ReplayPolicy {
      * @param now               current time
      * @return the replay mode
      */
-    static Mode decide(boolean sameSenderSession, Instant signedAt, Instant capturedAt,
-                       @Nullable Instant lastDirectSigned, Instant now) {
+    static Mode decide(
+            boolean sameSenderSession,
+            Instant signedAt,
+            Instant capturedAt,
+            @Nullable Instant lastDirectSigned,
+            Instant now) {
         if (!sameSenderSession) return Mode.DISGUISED;
         if (!signedAt.plus(SIGNATURE_LIFETIME).isAfter(now)) return Mode.DISGUISED;
         if (lastDirectSigned != null && !lastDirectSigned.isBefore(capturedAt)) return Mode.DISGUISED;

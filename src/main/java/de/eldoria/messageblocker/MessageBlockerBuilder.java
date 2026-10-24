@@ -1,3 +1,8 @@
+/*
+ *     SPDX-License-Identifier: LGPL-3.0-or-later
+ *
+ *     Copyright (C) EldoriaRPG Team and Contributor
+ */
 package de.eldoria.messageblocker;
 
 import de.eldoria.messageblocker.blocker.MessageBlocker;
@@ -24,7 +29,9 @@ public final class MessageBlockerBuilder {
      * Creates a new builder.
      *
      * @param plugin owning plugin
+     * @deprecated use {@link MessageBlockerAPI#builder(Plugin)}. Will be removed in 3.0.
      */
+    @Deprecated(since = "2.1.0", forRemoval = true)
     public MessageBlockerBuilder(Plugin plugin) {
         this.plugin = plugin;
     }
@@ -71,15 +78,19 @@ public final class MessageBlockerBuilder {
      *
      * @return the message blocker, or a dummy if the server does not provide Paper's chat API
      */
+    @SuppressWarnings("removal")
     public MessageBlocker build() {
         if (!hasPaperChat()) {
             plugin.getLogger().warning("Paper chat API not found. Messages will not be blocked.");
             return MessageBlocker.dummy(plugin);
         }
 
-        boolean protocolLib = interceptSystemMessages && plugin.getServer().getPluginManager().isPluginEnabled(PROTOCOL_LIB);
+        boolean protocolLib =
+                interceptSystemMessages && plugin.getServer().getPluginManager().isPluginEnabled(PROTOCOL_LIB);
         if (interceptSystemMessages && !declaresProtocolLib()) {
-            plugin.getLogger().warning("ProtocolLib is not listed as depend or softdepend. System messages are only held when ProtocolLib is enabled before this plugin.");
+            plugin.getLogger()
+                    .warning(
+                            "ProtocolLib is not listed as depend or softdepend. System messages are only held when ProtocolLib is enabled before this plugin.");
         }
         if (interceptSystemMessages && !protocolLib) {
             plugin.getLogger().info("ProtocolLib is not enabled. Only player chat will be held.");
@@ -90,7 +101,8 @@ public final class MessageBlockerBuilder {
 
     private boolean declaresProtocolLib() {
         var meta = plugin.getPluginMeta();
-        return meta.getPluginDependencies().contains(PROTOCOL_LIB) || meta.getPluginSoftDependencies().contains(PROTOCOL_LIB);
+        return meta.getPluginDependencies().contains(PROTOCOL_LIB)
+                || meta.getPluginSoftDependencies().contains(PROTOCOL_LIB);
     }
 
     private static boolean hasPaperChat() {

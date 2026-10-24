@@ -1,3 +1,8 @@
+/*
+ *     SPDX-License-Identifier: LGPL-3.0-or-later
+ *
+ *     Copyright (C) EldoriaRPG Team and Contributor
+ */
 package de.eldoria.messageblocker.blocker;
 
 import net.kyori.adventure.text.Component;
@@ -13,8 +18,7 @@ import java.util.concurrent.CompletableFuture;
  */
 record DummyMessageBlocker(Plugin plugin) implements MessageBlocker {
     @Override
-    public void blockPlayer(Player player) {
-    }
+    public void blockPlayer(Player player) {}
 
     @Override
     public CompletableFuture<Void> unblockPlayer(Player player) {

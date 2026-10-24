@@ -1,3 +1,8 @@
+/*
+ *     SPDX-License-Identifier: LGPL-3.0-or-later
+ *
+ *     Copyright (C) EldoriaRPG Team and Contributor
+ */
 package de.eldoria.messageblocker.blocker;
 
 import net.kyori.adventure.chat.ChatType;
@@ -27,8 +32,8 @@ sealed interface HeldMessage permits HeldMessage.SignedChat, HeldMessage.SystemP
      * @param senderAtCapture the sending player instance at capture time
      * @param at              capture time
      */
-    record SignedChat(SignedMessage view, ChatType.Bound bound, Player senderAtCapture,
-                      Instant at) implements HeldMessage {
+    record SignedChat(SignedMessage view, ChatType.Bound bound, Player senderAtCapture, Instant at)
+            implements HeldMessage {
         /**
          * Uuid of the sender.
          *
@@ -55,6 +60,5 @@ sealed interface HeldMessage permits HeldMessage.SignedChat, HeldMessage.SystemP
      * @param packet the intercepted packet, resent by the interceptor that captured it
      * @param at     capture time
      */
-    record SystemPacket(Object packet, Instant at) implements HeldMessage {
-    }
+    record SystemPacket(Object packet, Instant at) implements HeldMessage {}
 }

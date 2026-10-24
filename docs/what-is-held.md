@@ -18,7 +18,7 @@ What the blocker can hold depends on whether ProtocolLib is installed and enable
 
 ProtocolLib is used when two things are true: `interceptSystemMessages` is on (the default), and ProtocolLib is
 already enabled when you create the blocker. List it in your `plugin.yml` so the server enables it first. See
-[Setup](./setup.md).
+[Setup](./setup.mdx).
 
 ## Player chat
 
@@ -75,8 +75,8 @@ server has already counted it for the player. The blocker only notes who sent it
 - Each player's queue holds 100 messages by default. When it is full, the oldest message is dropped. Change the
   size with `queueSize` on the [builder](./usage.md).
 - Held messages of a player are dropped when that player leaves.
-- If ProtocolLib cannot read a chat packet, the blocker logs a warning once and stops holding system messages.
-  Player chat is still held.
+- If ProtocolLib cannot read a chat packet, the blocker lets that packet through and logs a warning once. With a
+  ProtocolLib version that cannot read chat packets at all, system messages are not held. Player chat is still held.
 
 ## Things to know
 
@@ -85,3 +85,6 @@ server has already counted it for the player. The blocker only notes who sent it
 - **Renderers that look at the viewer.** A chat renderer gets the stand-in instead of the `Player` for a blocked
   viewer. Its UUID, name and display name are the player's, but it is not a `Player`. Code that checks
   `viewer instanceof Player` will not match it.
+- **Several plugins with Message Blocker.** Relocating the library also changes the marker that `sendBypassing`
+  adds, so every plugin's copy has its own. If two plugins block the same player at the same time and ProtocolLib
+  is installed, each one holds the other's `sendBypassing` messages until it unblocks the player.
