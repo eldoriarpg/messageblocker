@@ -82,7 +82,12 @@ tasks {
     }
 
     javadoc {
-        (options as StandardJavadocDocletOptions).addStringOption("-add-reads", "de.eldoria.messageblocker=ALL-UNNAMED")
+        val javadocOptions = options as StandardJavadocDocletOptions
+        javadocOptions.addStringOption("-add-reads", "de.eldoria.messageblocker=ALL-UNNAMED")
+        javadocOptions.links(
+            "https://docs.oracle.com/en/java/javase/21/docs/api/",
+            "https://jd.papermc.io/paper/1.21.11/",
+        )
     }
 
     test {
