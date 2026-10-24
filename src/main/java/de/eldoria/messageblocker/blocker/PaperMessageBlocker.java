@@ -56,7 +56,10 @@ public final class PaperMessageBlocker implements MessageBlocker {
      * @param executor                executor delivering held messages on unblock
      * @param interceptSystemMessages true to hold system messages as well, requires ProtocolLib to be enabled
      * @return the running blocker
+     * @deprecated skips the checks of the builder; use {@link de.eldoria.messageblocker.MessageBlockerAPI#builder(Plugin)}.
+     *     Will be removed in 3.0.
      */
+    @Deprecated(since = "2.1.0", forRemoval = true)
     public static PaperMessageBlocker start(
             Plugin plugin, int capacity, Executor executor, boolean interceptSystemMessages) {
         var blocker = new PaperMessageBlocker(plugin, capacity, executor, interceptSystemMessages);

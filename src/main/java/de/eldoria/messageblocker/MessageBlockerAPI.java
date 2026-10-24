@@ -39,6 +39,7 @@ public final class MessageBlockerAPI {
      * @param plugin owning plugin
      * @return new builder
      */
+    @SuppressWarnings("removal")
     public static MessageBlockerBuilder builder(Plugin plugin) {
         return new MessageBlockerBuilder(plugin);
     }

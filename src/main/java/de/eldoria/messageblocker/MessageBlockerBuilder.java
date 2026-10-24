@@ -29,7 +29,9 @@ public final class MessageBlockerBuilder {
      * Creates a new builder.
      *
      * @param plugin owning plugin
+     * @deprecated use {@link MessageBlockerAPI#builder(Plugin)}. Will be removed in 3.0.
      */
+    @Deprecated(since = "2.1.0", forRemoval = true)
     public MessageBlockerBuilder(Plugin plugin) {
         this.plugin = plugin;
     }
@@ -76,6 +78,7 @@ public final class MessageBlockerBuilder {
      *
      * @return the message blocker, or a dummy if the server does not provide Paper's chat API
      */
+    @SuppressWarnings("removal")
     public MessageBlocker build() {
         if (!hasPaperChat()) {
             plugin.getLogger().warning("Paper chat API not found. Messages will not be blocked.");
