@@ -5,6 +5,8 @@ plugins {
     alias(libs.plugins.spotless)
 }
 
+description = "Holds back chat for players while a plugin shows them a chat menu."
+
 repositories {
     mavenCentral()
     maven("https://repo.papermc.io/repository/maven-public/")
@@ -32,18 +34,38 @@ java {
 
 publishData {
     eldoNexus(dev = false)
+    channels {
+        clear()
+        release("https://eldonexus.de/repository/maven-releases/")
+        snapshot("https://eldonexus.de/repository/maven-snapshots/")
+    }
 }
 
 publishing {
     publications.withType<MavenPublication>().configureEach {
         pom {
-            url.set("https://github.com/eldoriarpg/messageblocker")
+            url = "https://github.com/eldoriarpg/messageblocker"
+            inceptionYear = "2021"
+            licenses {
+                license {
+                    name = "LGPL-3.0-or-later"
+                    url = "https://www.gnu.org/licenses/lgpl-3.0.html"
+                }
+            }
             developers {
                 developer {
-                    name.set("Nora Fülling")
-                    organization.set("EldoriaRPG")
-                    organizationUrl.set("https://github.com/eldoriarpg")
+                    id = "rainbowdashlabs"
+                    name = "Nora Fülling"
+                    email = "mail@chojo.dev"
+                    url = "https://github.com/rainbowdashlabs"
+                    organization = "Eldoria"
+                    organizationUrl = "https://github.com/eldoriarpg"
                 }
+            }
+            scm {
+                url = "https://github.com/eldoriarpg/messageblocker"
+                connection = "scm:git:git://github.com/eldoriarpg/messageblocker.git"
+                developerConnection = "scm:git:ssh://github.com/eldoriarpg/messageblocker.git"
             }
         }
     }
