@@ -2,6 +2,7 @@ plugins {
     `java-library`
     `maven-publish`
     alias(libs.plugins.publishdata)
+    alias(libs.plugins.spotless)
 }
 
 repositories {
@@ -62,5 +63,18 @@ tasks {
         testLogging {
             events("passed", "skipped", "failed")
         }
+    }
+}
+
+spotless {
+    java {
+        target("src/**/*.java")
+        licenseHeaderFile(rootProject.file("HEADER.txt"))
+        palantirJavaFormat(libs.versions.palantir.get()).formatJavadoc(false)
+        removeUnusedImports()
+        importOrder("", "java", "javax", "\\#")
+        trimTrailingWhitespace()
+        endWithNewline()
+        encoding("UTF-8")
     }
 }
